@@ -1,0 +1,15 @@
+INDEX VERSION 1.127+C:\Users\ak68250\Desktop\GTI610\Lab04\.metadata\.plugins\org.eclipse.jdt.core
+2676963175.index
+127819156.index
+254651189.index
+2367767887.index
+3908311611.index
+3354442969.index
+1184839706.index
+754138989.index
+2367713556.index
+4077209876.index
+2596784491.index
+2060562413.index
+762619281.index
+2464186008.index
