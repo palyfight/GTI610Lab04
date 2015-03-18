@@ -3,91 +3,89 @@ package Partie1;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServeurSocket {
 
 	public static void main(String[] args) {
-		ServerSocket serveur = null;
-
+		ServerSocket server = null;
+		
 		try {
-			serveur = new ServerSocket(2015);
+			server = new ServerSocket(2015);
+
+			while(true){
+				new MyThread(server.accept()).start();
+			}
 
 		} catch (IOException e) {
 
 			System.out.print("\n" + e);
 			System.exit(1);
 		}
-
-		Socket socket = null;
-		BufferedReader in = null;
-		//String ligne = null;
-
-		while (true) {
-
+		finally {
 			try {
-				socket = serveur.accept();
-				System.out.println("Connection ouverte");
-				
-				String ip = socket.getInetAddress().toString();
-				int port = socket.getPort();
-
-				in = new BufferedReader(new InputStreamReader(
-						socket.getInputStream()));
-
-				/*while ((ligne = in.readLine()) != null) {
-					
-					System.out.println("Reçu: " + ligne);
-				}*/
-				
-				MyThread thread = new MyThread(in, ip, port);
-				thread.start();
-					
-				System.out.println("Connection fermée");
-
-			} catch (IOException e) {
-				if (!socket.isClosed()) {
-					e.printStackTrace();
-					System.exit(1);
-				}
-			} /*finally {
-				try {					
-					socket.shutdownInput();
-					socket.close();
-				} catch (IOException e) {
-
-					e.printStackTrace();
-					System.exit(1);
-				}
-			}*/
-
-		}
-	}
-	
-	public static class MyThread extends Thread{
-		BufferedReader br;
-		String ipAddress;
-		int portNum;
-		
-		MyThread(BufferedReader b, String ip, int port){
-			this.br = b;
-			this.ipAddress = ip;
-			this.portNum = port;
-		}
-		
-		public void run(){
-			/*String ligne = "";
-
-			try {
-				while ((ligne = br.readLine()) != null) {
-					System.out.println("From: " + sock.getInetAddress() +":" + sock.getPort() + "\nMessage: " + ligne);
-				}
+				server.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
-			System.out.println("THIS IS A TEST NIGGUH! " + ipAddress + ":" + portNum);
+			}
+		}
+
+	}
+
+	public static class MyThread extends Thread{
+		BufferedReader br;
+		PrintWriter out;
+		String ipAddress;
+		int portNum;
+		Socket socket;
+
+
+		MyThread(Socket socket){			
+			try {
+				this.socket = socket;
+				System.out.println("Connection ouverte");
+				this.br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				this.out = new PrintWriter(socket.getOutputStream(), true);
+				this.ipAddress = socket.getInetAddress().toString();
+				this.portNum = socket.getPort();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		public void run(){
+			String ligne = "";
+
+			try {
+				while ((ligne = br.readLine()) != null || socket.isConnected()) {
+					System.out.println("Message From Client: "+ ligne + " " + ipAddress + ":" + portNum );
+					out.println(ligne.toUpperCase());
+					out.flush();
+				}
+				System.out.println("Connection close");
+				br.close();
+				out.close();
+				socket.close();
+				this.interrupt();
+				
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
 	}
 }
+
+/*public class ServeurSocket {
+
+	public static void main(String[] args) {
+		while(true){
+			System.out.print("LELELELELELELELELLELELELELELELELELELELELELELELELELLELE");
+		}
+	}
+}*/

@@ -1,6 +1,10 @@
 package Partie1;
 
+import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -12,43 +16,52 @@ public class Client {
 		Socket socket = new Socket();
 		Scanner keyboard = new Scanner(System.in);
 
+		InputStream is = null;
+		InputStreamReader isr = null;
+		BufferedReader br = null;
+		StringBuffer buffer = new StringBuffer();
+		String message = "";
+
 		try {
 			socket = new Socket("localhost", 2015);
+			
+			if (socket.isConnected()) {
 
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
-		while (socket.isConnected()) {
+				PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+				br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-			try {
-				PrintWriter out = new PrintWriter(socket.getOutputStream(),
-						true);
-				String ligne = "Hello World!";
+				String line = "";
+				do{
+					System.out.println("Quoi? :");
+					line = keyboard.nextLine(); 
+					if(line != "\n"){
+						out.println(line);
+						out.flush();
+						System.out.println(br.readLine());
+					}
+				}while(!(line.trim().equalsIgnoreCase("exit")));
 
-				System.out.println("Quoi? :");
-				ligne = keyboard.nextLine();
-				
-				while (!(ligne.trim().equals("ciao")))
-					out.println(ligne);
+				out.close();
+				br.close();
+				socket.close();
 
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(1);
-			} finally {
-				try {
-					
-					socket.shutdownOutput();
-					socket.close();
-				} catch (IOException e) {
-					
-					e.printStackTrace();
-					System.exit(1);
-				}
 			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		} 
 
-		} // if
+
+		// if
 	}
-}
+} 
+
+/*public class Client {
+
+	public static void main(String[] args) {
+		while(true){
+			System.out.print("LELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELELE");
+		}
+	}
+}*/
